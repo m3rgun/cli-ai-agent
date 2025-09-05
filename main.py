@@ -5,7 +5,7 @@ from google import genai
 from google.genai import types
 
 from prompts import system_prompt
-from call_functions import available_functions
+from call_functions import available_functions, call_function
 
 
 def main():
@@ -39,7 +39,7 @@ def main():
 
 
 def generate_content(client, messages, verbose):
-
+    
     response = client.models.generate_content(
         model="gemini-2.0-flash-001",
         contents=messages,
@@ -54,8 +54,20 @@ def generate_content(client, messages, verbose):
     if not response.function_calls:
         return response.text
     
-    for function_call in response.function_calls:
-        print(f"Calling function: {function_call.name}({function_call.args})")
+    function_responses = []
+    for function_call_part in response.function_calls:
+        function_call_result = call_function(function_call_part, verbose)
+        if (
+            not function_call_result.parts
+            or not function_call_result.parts[0].function_response
+        ):
+            raise Exception("empty function call result")
+        if verbose:
+            print(f"-> {function_call_result.parts[0].function_response.response}")
+        function_responses.append(function_call_result.parts[0])
+
+    if not function_responses:
+        raise Exception("no function responses generated, exiting.")
 
 if __name__ == "__main__":
     main()
