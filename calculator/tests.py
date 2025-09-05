@@ -27,8 +27,8 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(result, 17)
 
     def test_complex_expression(self):
-        result = self.calculator.evaluate("2 * 3 - 8 / 2 + 5")
-        self.assertEqual(result, 7)
+        result = self.calculator.evaluate("5 + 4 / 3 - 8 * 2")
+        self.assertAlmostEqual(result, -9.666666666666666)
 
     def test_empty_expression(self):
         result = self.calculator.evaluate("")
